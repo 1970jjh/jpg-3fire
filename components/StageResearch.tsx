@@ -114,14 +114,9 @@ const StageResearch: React.FC<Props> = ({ onNext, teamId, totalTeams }) => {
 
       {/* Mobile Bottom Action */}
       <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t-2 border-black md:static md:bg-transparent md:border-none md:p-0 md:mt-8 z-30">
-        <button 
+        <button
           onClick={onNext}
-          disabled={collectedClues.length < 1}
-          className={`w-full md:w-auto md:ml-auto px-8 py-4 font-black text-lg flex items-center justify-center gap-2 border-2 border-black shadow-hard transition-all ${
-            collectedClues.length >= 1 
-            ? 'bg-brutal-blue text-white hover:translate-x-1 hover:translate-y-1 hover:shadow-none' 
-            : 'bg-stone-300 text-stone-500 cursor-not-allowed'
-          }`}
+          className="w-full md:w-auto md:ml-auto px-8 py-4 font-black text-lg flex items-center justify-center gap-2 border-2 border-black shadow-hard transition-all bg-brutal-blue text-white hover:translate-x-1 hover:translate-y-1 hover:shadow-none"
         >
           <span>ANALYZE DATA</span>
           <ChevronRight size={24} strokeWidth={3} />

@@ -1,134 +1,148 @@
 import React, { useState } from 'react';
-import { ChevronRight, ArrowDown, Calculator, HelpCircle } from 'lucide-react';
+import { ChevronRight, FileText, AlertTriangle, Lightbulb, Shield, User } from 'lucide-react';
 
-interface Props {
-  onNext: () => void;
+interface AnalysisData {
+  author: string;
+  problemDefinition: string;
+  rootCause: string;
+  solution: string;
+  prevention: string;
 }
 
-const StageAnalysis: React.FC<Props> = ({ onNext }) => {
-  const [powerCalc, setPowerCalc] = useState<{a: number, b: number, h: number}>({a: 2, b: 4, h: 3});
-  const [whySteps, setWhySteps] = useState<string[]>(["", "", ""]);
+interface Props {
+  onNext: (data: AnalysisData) => void;
+  teamId: number;
+}
 
-  const calculateTotalPower = () => {
-    return (powerCalc.a * 3500) + (powerCalc.b * 2000) + (powerCalc.h * 500);
+const StageAnalysis: React.FC<Props> = ({ onNext, teamId }) => {
+  const [formData, setFormData] = useState<AnalysisData>({
+    author: '',
+    problemDefinition: '',
+    rootCause: '',
+    solution: '',
+    prevention: ''
+  });
+
+  const isFormValid = formData.author.trim() &&
+                      formData.problemDefinition.trim() &&
+                      formData.rootCause.trim() &&
+                      formData.solution.trim() &&
+                      formData.prevention.trim();
+
+  const handleSubmit = () => {
+    if (isFormValid) {
+      onNext(formData);
+    }
   };
 
-  const totalPower = calculateTotalPower();
-  const maxPower = 16000;
-  const isOverload = totalPower > maxPower;
-
   return (
-    <div className="w-full max-w-5xl mx-auto p-4 md:p-6 animate-in slide-in-from-right duration-500 pb-32 md:pb-20">
-      <h2 className="text-2xl font-bold mb-6 border-l-8 border-purple-600 pl-4">원인 분석</h2>
+    <div className="w-full max-w-4xl mx-auto p-4 md:p-6 animate-in slide-in-from-right duration-500 pb-32 md:pb-20">
+      {/* Header */}
+      <div className="bg-white border-2 border-black p-4 shadow-hard mb-6">
+        <h2 className="text-xl md:text-2xl font-black uppercase flex items-center gap-2">
+          <FileText size={24} />
+          TEAM {teamId} - 분석 보고서 작성
+        </h2>
+        <p className="text-sm text-stone-500 mt-1">
+          수집한 정보를 바탕으로 각 항목을 작성하세요.
+        </p>
+      </div>
 
-      {/* Tool 1: Logic Tree / Data Verification */}
-      <section className="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 mb-6">
-        <h3 className="text-lg font-bold flex items-center gap-2 mb-6 text-slate-800 border-b border-slate-100 pb-4">
-          <div className="p-2 bg-purple-100 rounded-lg text-purple-600">
-            <Calculator size={20} />
-          </div>
-          가설 1: 전력 과부하 확인
-        </h3>
-        
-        <div className="grid md:grid-cols-2 gap-6 items-center">
-          <div className="space-y-3">
-            {[
-              { label: 'A Pro (3,500W)', key: 'a' as const },
-              { label: 'B Pro (2,000W)', key: 'b' as const },
-              { label: '항온항습기 (500W)', key: 'h' as const }
-            ].map((item) => (
-              <div key={item.key} className="flex justify-between items-center bg-slate-50 p-4 rounded-xl active:bg-slate-100 transition-colors">
-                <label className="font-medium text-sm text-slate-700">{item.label}</label>
-                <div className="flex items-center gap-3">
-                  <button 
-                    className="w-8 h-8 rounded-full bg-white border border-slate-300 flex items-center justify-center font-bold text-slate-500 active:bg-slate-100"
-                    onClick={() => setPowerCalc(prev => ({...prev, [item.key]: Math.max(0, prev[item.key] - 1)}))}
-                  >
-                    -
-                  </button>
-                  <span className="w-8 text-center font-bold text-lg">{powerCalc[item.key]}</span>
-                  <button 
-                    className="w-8 h-8 rounded-full bg-white border border-slate-300 flex items-center justify-center font-bold text-slate-500 active:bg-slate-100"
-                    onClick={() => setPowerCalc(prev => ({...prev, [item.key]: Math.min(10, prev[item.key] + 1)}))}
-                  >
-                    +
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="bg-slate-900 text-white p-6 rounded-2xl text-center shadow-lg mt-4 md:mt-0">
-            <p className="text-slate-400 text-sm mb-2 uppercase tracking-wide">Total Power Usage</p>
-            <p className={`text-4xl font-black mb-4 ${isOverload ? 'text-red-400' : 'text-green-400'}`}>
-              {totalPower.toLocaleString()} <span className="text-lg text-slate-400">W</span>
-            </p>
-            <div className="border-t border-slate-700 pt-4 flex justify-between px-4">
-              <span className="text-sm text-slate-400">Limit</span>
-              <span className="text-lg font-bold">16,000 W</span>
-            </div>
-            {isOverload && (
-              <div className="mt-4 bg-red-500/20 border border-red-500 text-red-100 text-sm font-bold py-2 px-4 rounded-lg animate-pulse">
-                ⚠ 과부하 발생 (Overload)
-              </div>
-            )}
-          </div>
+      {/* Form */}
+      <div className="space-y-6">
+        {/* Author */}
+        <div className="bg-white border-2 border-black p-5 shadow-hard">
+          <label className="block font-black text-sm mb-3 flex items-center gap-2 text-stone-700">
+            <User size={18} />
+            작성자 (팀 대표)
+          </label>
+          <input
+            type="text"
+            placeholder="이름을 입력하세요"
+            className="w-full p-3 border-2 border-black focus:ring-2 focus:ring-brutal-blue outline-none font-bold"
+            value={formData.author}
+            onChange={(e) => setFormData({ ...formData, author: e.target.value })}
+          />
         </div>
-      </section>
 
-      {/* Tool 2: 5 Whys */}
-      <section className="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
-        <h3 className="text-lg font-bold flex items-center gap-2 mb-6 text-slate-800 border-b border-slate-100 pb-4">
-          <div className="p-2 bg-purple-100 rounded-lg text-purple-600">
-            <HelpCircle size={20} />
-          </div>
-          가설 2: 5 Why 분석
-        </h3>
-
-        <div className="space-y-4">
-          <div className="p-4 bg-red-50 border border-red-100 rounded-xl text-red-900">
-            <span className="block text-xs font-bold text-red-400 mb-1">문제 상황 (Phenomenon)</span>
-            <p className="font-bold">박계장이 화재 대피 중 전치 4주 화상을 입었다.</p>
-          </div>
-
-          {[0, 1, 2].map((idx) => (
-            <div key={idx} className="relative pl-6 border-l-2 border-slate-200 ml-4 pb-2 last:border-0 last:pb-0">
-              <div className="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-slate-300 border-2 border-white"></div>
-              <div className="mb-2">
-                <span className="text-sm font-bold text-slate-500">Why {idx + 1}?</span>
-              </div>
-              <textarea 
-                placeholder={idx === 0 ? "왜 화상을 입었는가?" : idx === 1 ? "왜 출구로 나가지 못했는가?" : "왜 출구가 막혀있었는가?"}
-                className="w-full p-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all text-base min-h-[80px] resize-none"
-                value={whySteps[idx]}
-                onChange={(e) => {
-                  const newSteps = [...whySteps];
-                  newSteps[idx] = e.target.value;
-                  setWhySteps(newSteps);
-                }}
-              />
-            </div>
-          ))}
-          
-           <div className="mt-6 p-4 bg-purple-50 border border-purple-100 rounded-xl text-purple-900 text-sm">
-             <div className="flex items-start gap-2">
-               <span className="bg-purple-200 text-purple-800 text-xs font-bold px-2 py-0.5 rounded mt-0.5">Hint</span>
-               <p className="leading-relaxed">
-                 생산 물량을 맞추기 위해 가공 전 자재를 출구 쪽에 무리하게 적재함 (안전 수칙 위반)
-               </p>
-             </div>
-          </div>
+        {/* Problem Definition */}
+        <div className="bg-white border-2 border-black p-5 shadow-hard">
+          <label className="block font-black text-sm mb-3 flex items-center gap-2">
+            <span className="bg-red-500 text-white w-6 h-6 flex items-center justify-center text-xs">1</span>
+            <AlertTriangle size={18} className="text-red-500" />
+            문제 정의 (Problem Definition)
+          </label>
+          <p className="text-xs text-stone-500 mb-3">발생한 문제가 무엇인지 명확하게 정의하세요.</p>
+          <textarea
+            placeholder="예: 제3공장에서 화재가 발생하여 박계장이 전치 4주 화상을 입었으며, 생산 라인이 중단되었다."
+            className="w-full p-3 border-2 border-black focus:ring-2 focus:ring-brutal-blue outline-none font-medium min-h-[100px] resize-none"
+            value={formData.problemDefinition}
+            onChange={(e) => setFormData({ ...formData, problemDefinition: e.target.value })}
+          />
         </div>
-      </section>
 
-      {/* Mobile Bottom Action Bar */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-slate-200 md:static md:bg-transparent md:border-none md:p-0 md:mt-8 z-20">
-        <button 
-          onClick={onNext}
-          className="w-full md:w-auto md:ml-auto px-6 py-4 md:py-3 rounded-xl bg-blue-600 text-white font-bold flex items-center justify-center gap-2 transition-all shadow-lg hover:bg-blue-700 active:bg-blue-800"
+        {/* Root Cause */}
+        <div className="bg-white border-2 border-black p-5 shadow-hard">
+          <label className="block font-black text-sm mb-3 flex items-center gap-2">
+            <span className="bg-orange-500 text-white w-6 h-6 flex items-center justify-center text-xs">2</span>
+            <Lightbulb size={18} className="text-orange-500" />
+            근본 원인 (Root Cause)
+          </label>
+          <p className="text-xs text-stone-500 mb-3">문제가 발생한 근본적인 원인을 분석하세요.</p>
+          <textarea
+            placeholder="예: 무리한 생산 일정으로 인해 전력 과부하가 발생했고, 비상 출구 앞에 자재를 적재하여 대피가 지연되었다."
+            className="w-full p-3 border-2 border-black focus:ring-2 focus:ring-brutal-blue outline-none font-medium min-h-[100px] resize-none"
+            value={formData.rootCause}
+            onChange={(e) => setFormData({ ...formData, rootCause: e.target.value })}
+          />
+        </div>
+
+        {/* Solution */}
+        <div className="bg-white border-2 border-black p-5 shadow-hard">
+          <label className="block font-black text-sm mb-3 flex items-center gap-2">
+            <span className="bg-blue-500 text-white w-6 h-6 flex items-center justify-center text-xs">3</span>
+            <FileText size={18} className="text-blue-500" />
+            해결 방안 (Solution)
+          </label>
+          <p className="text-xs text-stone-500 mb-3">현재 상황을 해결하기 위한 즉각적인 조치를 작성하세요.</p>
+          <textarea
+            placeholder="예: 피해자 긴급 후송, 화재 진압, 대체 생산 라인 가동을 통한 납기 대응"
+            className="w-full p-3 border-2 border-black focus:ring-2 focus:ring-brutal-blue outline-none font-medium min-h-[100px] resize-none"
+            value={formData.solution}
+            onChange={(e) => setFormData({ ...formData, solution: e.target.value })}
+          />
+        </div>
+
+        {/* Prevention */}
+        <div className="bg-white border-2 border-black p-5 shadow-hard">
+          <label className="block font-black text-sm mb-3 flex items-center gap-2">
+            <span className="bg-green-500 text-white w-6 h-6 flex items-center justify-center text-xs">4</span>
+            <Shield size={18} className="text-green-500" />
+            재발 방지 대책 (Prevention)
+          </label>
+          <p className="text-xs text-stone-500 mb-3">동일한 문제가 재발하지 않도록 하는 예방 대책을 작성하세요.</p>
+          <textarea
+            placeholder="예: 전력 자동 차단 시스템 도입, 비상 출구 관리 강화, 정기 안전 점검 의무화"
+            className="w-full p-3 border-2 border-black focus:ring-2 focus:ring-brutal-blue outline-none font-medium min-h-[100px] resize-none"
+            value={formData.prevention}
+            onChange={(e) => setFormData({ ...formData, prevention: e.target.value })}
+          />
+        </div>
+      </div>
+
+      {/* Submit Button */}
+      <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t-2 border-black md:static md:bg-transparent md:border-none md:p-0 md:mt-8 z-20">
+        <button
+          onClick={handleSubmit}
+          disabled={!isFormValid}
+          className={`w-full md:w-auto md:ml-auto px-8 py-4 font-black text-lg flex items-center justify-center gap-2 border-2 border-black shadow-hard transition-all ${
+            isFormValid
+              ? 'bg-brutal-blue text-white hover:translate-x-1 hover:translate-y-1 hover:shadow-none'
+              : 'bg-stone-300 text-stone-500 cursor-not-allowed'
+          }`}
         >
-          <span>보고서 작성</span>
-          <ChevronRight size={20} />
+          <span>보고서 초안 작성</span>
+          <ChevronRight size={24} strokeWidth={3} />
         </button>
       </div>
     </div>

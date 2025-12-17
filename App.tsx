@@ -10,13 +10,22 @@ import StageResult from './components/StageResult';
 import AdminDashboard from './components/AdminDashboard';
 import { Smartphone, Monitor, Users, ArrowRight } from 'lucide-react';
 
+interface AnalysisData {
+  author: string;
+  problemDefinition: string;
+  rootCause: string;
+  solution: string;
+  prevention: string;
+}
+
 const App: React.FC = () => {
   const [mode, setMode] = useState<'landing' | 'learner' | 'admin'>('landing');
   const [stage, setStage] = useState<AppStage>(AppStage.INTRO);
   const [userReport, setUserReport] = useState<ReportSubmission | null>(null);
   const [allReports, setAllReports] = useState<ReportSubmission[]>([]); // Store all submissions for Admin
   const [teamId, setTeamId] = useState<number>(1);
-  
+  const [analysisData, setAnalysisData] = useState<AnalysisData | null>(null);
+
   // Initialize with localStorage or default to 6
   const [totalTeams, setTotalTeams] = useState<number>(() => {
     if (typeof window !== 'undefined') {
@@ -36,10 +45,14 @@ const App: React.FC = () => {
       case AppStage.INTRO: setStage(AppStage.SCENARIO); break;
       case AppStage.SCENARIO: setStage(AppStage.RESEARCH); break;
       case AppStage.RESEARCH: setStage(AppStage.ANALYSIS); break;
-      case AppStage.ANALYSIS: setStage(AppStage.REPORT); break;
-      case AppStage.REPORT: setStage(AppStage.RESULT); break; 
       default: break;
     }
+    window.scrollTo(0, 0);
+  };
+
+  const handleAnalysisComplete = (data: AnalysisData) => {
+    setAnalysisData(data);
+    setStage(AppStage.REPORT);
     window.scrollTo(0, 0);
   };
 
@@ -50,21 +63,24 @@ const App: React.FC = () => {
       teamId: teamId,
       timestamp: new Date().toLocaleTimeString(),
     };
-    
+
     setUserReport(newReport);
     setAllReports(prev => [newReport, ...prev]);
     setStage(AppStage.RESULT);
+    window.scrollTo(0, 0);
   };
 
   const handleRestart = () => {
     setStage(AppStage.INTRO);
     setUserReport(null);
+    setAnalysisData(null);
   };
 
   const handleExitMode = () => {
     setMode('landing');
     setStage(AppStage.INTRO);
     setUserReport(null);
+    setAnalysisData(null);
   };
 
   const startLearnerMode = () => {
@@ -88,7 +104,7 @@ const App: React.FC = () => {
             제3공장 화재사고 문제해결 시뮬레이션
           </p>
         </div>
-        
+
         {/* Mode Selection */}
         <div className="grid md:grid-cols-2 gap-6 w-full max-w-3xl relative z-10">
           {/* Learner Mode Card */}
@@ -97,7 +113,7 @@ const App: React.FC = () => {
               <Smartphone size={32} className="text-black" />
               <h3 className="text-2xl font-black">학습자 모드</h3>
             </div>
-            
+
             <div className="space-y-4">
               <div className="bg-stone-100 p-4 border-2 border-black">
                 <label className="block font-bold text-sm mb-2 flex items-center justify-between">
@@ -110,8 +126,8 @@ const App: React.FC = () => {
                       key={num}
                       onClick={() => setTeamId(num)}
                       className={`font-mono font-bold py-2 border-2 border-black transition-all ${
-                        teamId === num 
-                        ? 'bg-black text-white' 
+                        teamId === num
+                        ? 'bg-black text-white'
                         : 'bg-white text-black hover:bg-gray-200'
                       }`}
                     >
@@ -120,8 +136,8 @@ const App: React.FC = () => {
                   ))}
                 </div>
               </div>
-              
-              <button 
+
+              <button
                 onClick={startLearnerMode}
                 className="w-full bg-brutal-blue text-white font-black text-lg py-4 border-2 border-black shadow-hard hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all flex items-center justify-center gap-2"
               >
@@ -131,7 +147,7 @@ const App: React.FC = () => {
           </div>
 
           {/* Admin Mode Card */}
-          <button 
+          <button
             onClick={() => setMode('admin')}
             className="bg-black text-white border-4 border-white shadow-hard p-6 flex flex-col items-center justify-center gap-4 group hover:bg-stone-900 transition-colors"
           >
@@ -153,8 +169,8 @@ const App: React.FC = () => {
 
   if (mode === 'admin') {
     return (
-      <AdminDashboard 
-        onExit={handleExitMode} 
+      <AdminDashboard
+        onExit={handleExitMode}
         totalTeams={totalTeams}
         setTotalTeams={setTotalTeams}
         allReports={allReports}
@@ -165,13 +181,19 @@ const App: React.FC = () => {
   return (
     <div className="min-h-screen bg-stone-100 font-sans text-black pb-24 md:pb-0">
       <Header currentStage={stage} onExit={handleExitMode} />
-      
+
       <main className="w-full max-w-7xl mx-auto md:px-6 md:py-8">
         {stage === AppStage.INTRO && <StageIntro onNext={handleNext} />}
         {stage === AppStage.SCENARIO && <StageScenario onNext={handleNext} />}
         {stage === AppStage.RESEARCH && <StageResearch onNext={handleNext} teamId={teamId} totalTeams={totalTeams} />}
-        {stage === AppStage.ANALYSIS && <StageAnalysis onNext={handleNext} />}
-        {stage === AppStage.REPORT && <StageReport onNext={handleReportSubmit} />}
+        {stage === AppStage.ANALYSIS && <StageAnalysis onNext={handleAnalysisComplete} teamId={teamId} />}
+        {stage === AppStage.REPORT && analysisData && (
+          <StageReport
+            analysisData={analysisData}
+            teamId={teamId}
+            onSubmit={handleReportSubmit}
+          />
+        )}
         {stage === AppStage.RESULT && <StageResult userReport={userReport} onRestart={handleRestart} />}
       </main>
     </div>

@@ -122,8 +122,8 @@ const AdminDashboard: React.FC<Props> = ({ onExit, totalTeams = 6, setTotalTeams
                     <div className="w-16 h-10 flex items-center justify-center border-t-2 border-b-2 border-black font-mono font-bold text-lg">
                       {totalTeams}
                     </div>
-                    <button 
-                      onClick={() => setTotalTeams(totalTeams + 1)}
+                    <button
+                      onClick={() => setTotalTeams(Math.min(10, totalTeams + 1))}
                       className="w-10 h-10 bg-stone-200 border-2 border-black font-bold hover:bg-stone-300"
                     >
                       +

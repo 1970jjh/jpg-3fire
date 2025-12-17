@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PBL - 3rd Factory SIM</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['"Noto Sans KR"', 'sans-serif'],
+              mono: ['"JetBrains Mono"', 'monospace'],
+            },
+            colors: {
+              brutal: {
+                bg: '#f0f0f0',
+                yellow: '#FFF500',
+                red: '#FF2A2A',
+                blue: '#2A55FF',
+                black: '#1a1a1a',
+              }
+            },
+            boxShadow: {
+              'hard': '4px 4px 0px 0px #000000',
+              'hard-lg': '8px 8px 0px 0px #000000',
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      body {
+        font-family: 'Noto Sans KR', sans-serif;
+        word-break: keep-all; /* 한글 줄바꿈 최적화 */
+        background-color: #f3f4f6;
+      }
+      .brutal-border {
+        border: 2px solid black;
+      }
+      .brutal-shadow {
+        box-shadow: 4px 4px 0px 0px black;
+      }
+      .brutal-shadow-active:active {
+        transform: translate(2px, 2px);
+        box-shadow: 2px 2px 0px 0px black;
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@^19.2.3",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "lucide-react": "https://esm.sh/lucide-react@^0.561.0"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body class="bg-stone-100 text-black">
+    <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>

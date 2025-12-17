@@ -8,6 +8,15 @@ export enum AppStage {
   RESULT = 'RESULT'
 }
 
+export interface Project {
+  id: string;
+  name: string;
+  description: string;
+  totalTeams: number;
+  createdAt: string;
+  reports: ReportSubmission[];
+}
+
 export interface Clue {
   id: string;
   title: string;

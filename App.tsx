@@ -8,7 +8,7 @@ import StageAnalysis from './components/StageAnalysis';
 import StageReport from './components/StageReport';
 import StageResult from './components/StageResult';
 import AdminDashboard from './components/AdminDashboard';
-import { Smartphone, Monitor, Users, ArrowRight } from 'lucide-react';
+import { Smartphone, Monitor, Users, ArrowRight, X, Lock, User } from 'lucide-react';
 
 interface AnalysisData {
   author: string;
@@ -18,13 +18,23 @@ interface AnalysisData {
   prevention: string;
 }
 
+const ADMIN_PASSWORD = '6749467';
+
 const App: React.FC = () => {
   const [mode, setMode] = useState<'landing' | 'learner' | 'admin'>('landing');
   const [stage, setStage] = useState<AppStage>(AppStage.INTRO);
   const [userReport, setUserReport] = useState<ReportSubmission | null>(null);
-  const [allReports, setAllReports] = useState<ReportSubmission[]>([]); // Store all submissions for Admin
+  const [allReports, setAllReports] = useState<ReportSubmission[]>([]);
   const [teamId, setTeamId] = useState<number>(1);
   const [analysisData, setAnalysisData] = useState<AnalysisData | null>(null);
+
+  // Learner name input
+  const [learnerName, setLearnerName] = useState<string>('');
+
+  // Admin password modal
+  const [showAdminModal, setShowAdminModal] = useState<boolean>(false);
+  const [adminPassword, setAdminPassword] = useState<string>('');
+  const [passwordError, setPasswordError] = useState<boolean>(false);
 
   // Initialize with localStorage or default to 6
   const [totalTeams, setTotalTeams] = useState<number>(() => {
@@ -51,6 +61,10 @@ const App: React.FC = () => {
   };
 
   const handleAnalysisComplete = (data: AnalysisData) => {
+    // Pre-fill author with learner name if not already set
+    if (!data.author && learnerName) {
+      data.author = learnerName;
+    }
     setAnalysisData(data);
     setStage(AppStage.REPORT);
     window.scrollTo(0, 0);
@@ -81,10 +95,30 @@ const App: React.FC = () => {
     setStage(AppStage.INTRO);
     setUserReport(null);
     setAnalysisData(null);
+    setLearnerName('');
   };
 
   const startLearnerMode = () => {
-    setMode('learner');
+    if (learnerName.trim()) {
+      setMode('learner');
+    }
+  };
+
+  const handleAdminLogin = () => {
+    if (adminPassword === ADMIN_PASSWORD) {
+      setMode('admin');
+      setShowAdminModal(false);
+      setAdminPassword('');
+      setPasswordError(false);
+    } else {
+      setPasswordError(true);
+    }
+  };
+
+  const openAdminModal = () => {
+    setShowAdminModal(true);
+    setAdminPassword('');
+    setPasswordError(false);
   };
 
   if (mode === 'landing') {
@@ -115,6 +149,22 @@ const App: React.FC = () => {
             </div>
 
             <div className="space-y-4">
+              {/* Name Input */}
+              <div className="bg-stone-100 p-4 border-2 border-black">
+                <label className="block font-bold text-sm mb-2 flex items-center gap-2">
+                  <User size={16} />
+                  이름 입력
+                </label>
+                <input
+                  type="text"
+                  placeholder="이름을 입력하세요"
+                  value={learnerName}
+                  onChange={(e) => setLearnerName(e.target.value)}
+                  className="w-full p-3 border-2 border-black font-bold focus:ring-2 focus:ring-brutal-blue outline-none"
+                />
+              </div>
+
+              {/* Team Selection */}
               <div className="bg-stone-100 p-4 border-2 border-black">
                 <label className="block font-bold text-sm mb-2 flex items-center justify-between">
                   <span className="flex items-center gap-2"><Users size={16}/> 팀 선택</span>
@@ -139,7 +189,12 @@ const App: React.FC = () => {
 
               <button
                 onClick={startLearnerMode}
-                className="w-full bg-brutal-blue text-white font-black text-lg py-4 border-2 border-black shadow-hard hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all flex items-center justify-center gap-2"
+                disabled={!learnerName.trim()}
+                className={`w-full font-black text-lg py-4 border-2 border-black shadow-hard transition-all flex items-center justify-center gap-2 ${
+                  learnerName.trim()
+                    ? 'bg-brutal-blue text-white hover:translate-x-1 hover:translate-y-1 hover:shadow-none'
+                    : 'bg-stone-300 text-stone-500 cursor-not-allowed'
+                }`}
               >
                 SIMULATION START <ArrowRight strokeWidth={3} />
               </button>
@@ -148,7 +203,7 @@ const App: React.FC = () => {
 
           {/* Admin Mode Card */}
           <button
-            onClick={() => setMode('admin')}
+            onClick={openAdminModal}
             className="bg-black text-white border-4 border-white shadow-hard p-6 flex flex-col items-center justify-center gap-4 group hover:bg-stone-900 transition-colors"
           >
              <Monitor size={48} className="text-brutal-yellow group-hover:rotate-12 transition-transform" />
@@ -163,6 +218,71 @@ const App: React.FC = () => {
         <div className="absolute bottom-4 font-mono text-xs font-bold opacity-50">
           SYSTEM VER 2.0 // BRUTAL_PBL_EDITION
         </div>
+
+        {/* Admin Password Modal */}
+        {showAdminModal && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+            onClick={() => setShowAdminModal(false)}
+          >
+            <div
+              className="bg-white max-w-md w-full border-4 border-black shadow-hard-lg"
+              onClick={e => e.stopPropagation()}
+            >
+              {/* Modal Header */}
+              <div className="bg-black text-white p-4 flex justify-between items-center">
+                <div className="flex items-center gap-2">
+                  <Lock size={20} />
+                  <h3 className="text-lg font-black">관리자 인증</h3>
+                </div>
+                <button
+                  onClick={() => setShowAdminModal(false)}
+                  className="hover:text-brutal-yellow transition-colors"
+                >
+                  <X size={24} />
+                </button>
+              </div>
+
+              {/* Modal Body */}
+              <div className="p-6">
+                <p className="text-sm text-stone-600 mb-4">
+                  관리자 모드에 접속하려면 비밀번호를 입력하세요.
+                </p>
+
+                <input
+                  type="password"
+                  placeholder="비밀번호 입력"
+                  value={adminPassword}
+                  onChange={(e) => {
+                    setAdminPassword(e.target.value);
+                    setPasswordError(false);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      handleAdminLogin();
+                    }
+                  }}
+                  className={`w-full p-3 border-2 font-bold focus:ring-2 focus:ring-brutal-blue outline-none mb-4 ${
+                    passwordError ? 'border-red-500 bg-red-50' : 'border-black'
+                  }`}
+                />
+
+                {passwordError && (
+                  <p className="text-red-500 text-sm font-bold mb-4">
+                    비밀번호가 올바르지 않습니다.
+                  </p>
+                )}
+
+                <button
+                  onClick={handleAdminLogin}
+                  className="w-full bg-black text-white font-black py-3 border-2 border-black shadow-hard hover:bg-brutal-blue hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all"
+                >
+                  로그인
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
@@ -186,7 +306,7 @@ const App: React.FC = () => {
         {stage === AppStage.INTRO && <StageIntro onNext={handleNext} />}
         {stage === AppStage.SCENARIO && <StageScenario onNext={handleNext} />}
         {stage === AppStage.RESEARCH && <StageResearch onNext={handleNext} teamId={teamId} totalTeams={totalTeams} />}
-        {stage === AppStage.ANALYSIS && <StageAnalysis onNext={handleAnalysisComplete} teamId={teamId} />}
+        {stage === AppStage.ANALYSIS && <StageAnalysis onNext={handleAnalysisComplete} teamId={teamId} learnerName={learnerName} />}
         {stage === AppStage.REPORT && analysisData && (
           <StageReport
             analysisData={analysisData}

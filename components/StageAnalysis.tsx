@@ -12,11 +12,12 @@ interface AnalysisData {
 interface Props {
   onNext: (data: AnalysisData) => void;
   teamId: number;
+  learnerName?: string;
 }
 
-const StageAnalysis: React.FC<Props> = ({ onNext, teamId }) => {
+const StageAnalysis: React.FC<Props> = ({ onNext, teamId, learnerName = '' }) => {
   const [formData, setFormData] = useState<AnalysisData>({
-    author: '',
+    author: learnerName,
     problemDefinition: '',
     rootCause: '',
     solution: '',

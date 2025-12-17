@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FileText, CheckCircle, ChevronRight, X, ZoomIn, Check, FileSearch } from 'lucide-react';
+import { FileText, CheckCircle, ChevronRight, X, ZoomIn } from 'lucide-react';
 import { CLUES } from '../constants';
 import { Clue } from '../types';
 
@@ -156,42 +156,6 @@ const StageResearch: React.FC<Props> = ({ onNext, teamId, totalTeams }) => {
                   </div>
                 )}
                 
-                <div className="bg-stone-50 border-2 border-black p-4 md:p-6 shadow-sm">
-                   <h4 className="font-black text-sm text-stone-500 mb-2 uppercase flex items-center gap-2">
-                     <FileSearch size={16}/>
-                     내용 요약
-                   </h4>
-                   <p className="font-bold text-xl leading-relaxed text-black font-mono whitespace-pre-wrap">
-                     {selectedClue.content}
-                   </p>
-                </div>
-             </div>
-
-             {/* Modal Footer / Actions */}
-             <div className="p-4 bg-white border-t-4 border-black sticky bottom-0 z-10">
-                <button 
-                  onClick={() => {
-                     toggleClue(selectedClue.id);
-                     setSelectedClue(null);
-                  }}
-                  className={`w-full py-4 font-black text-xl border-4 border-black shadow-hard hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all flex items-center justify-center gap-3 ${
-                     collectedClues.includes(selectedClue.id)
-                     ? 'bg-stone-200 text-stone-500'
-                     : 'bg-brutal-blue text-white'
-                  }`}
-                >
-                  {collectedClues.includes(selectedClue.id) ? (
-                    <>
-                      <X strokeWidth={4} />
-                      수집 취소 (REMOVE)
-                    </>
-                  ) : (
-                    <>
-                      <Check strokeWidth={4} />
-                      증거 수집 (COLLECT)
-                    </>
-                  )}
-                </button>
              </div>
 
           </div>

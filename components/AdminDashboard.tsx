@@ -8,9 +8,10 @@ interface Props {
   totalTeams?: number;
   setTotalTeams?: (count: number) => void;
   allReports?: ReportSubmission[];
+  projectName?: string;
 }
 
-const AdminDashboard: React.FC<Props> = ({ onExit, totalTeams = 6, setTotalTeams, allReports = [] }) => {
+const AdminDashboard: React.FC<Props> = ({ onExit, totalTeams = 6, setTotalTeams, allReports = [], projectName = '프로젝트' }) => {
   const [selectedTeamForClues, setSelectedTeamForClues] = useState<number>(1);
   const [viewMode, setViewMode] = useState<'dashboard' | 'clues'>('dashboard');
   const [selectedReport, setSelectedReport] = useState<ReportSubmission | null>(null);
@@ -38,66 +39,34 @@ const AdminDashboard: React.FC<Props> = ({ onExit, totalTeams = 6, setTotalTeams
   };
 
   return (
-    <div className="min-h-screen bg-stone-100 flex font-sans text-black">
-      {/* Sidebar - PC Only */}
-      <aside className="w-64 bg-black text-white flex-col hidden md:flex shadow-xl fixed h-full z-10">
-        <div className="p-6 border-b border-stone-800">
-          <h1 className="text-xl font-black text-white flex items-center gap-2 italic">
-            <span>PBL</span><span className="text-brutal-blue">SIM</span>
-          </h1>
-          <p className="text-xs text-stone-400 mt-1 font-mono">ADMIN CONSOLE V2</p>
-        </div>
-
-        <nav className="flex-1 p-4 space-y-2">
-          <button
-            onClick={() => setViewMode('dashboard')}
-            className={`w-full text-left p-3 border-2 font-bold flex items-center gap-3 cursor-pointer transition-colors ${viewMode === 'dashboard' ? 'bg-brutal-blue text-white border-white/20 shadow-lg' : 'text-stone-400 border-transparent hover:bg-stone-900'}`}
-          >
-            <BarChart2 size={20} />
-            <span>대시보드</span>
-          </button>
-          <button
-            onClick={() => setViewMode('clues')}
-            className={`w-full text-left p-3 border-2 font-bold flex items-center gap-3 cursor-pointer transition-colors ${viewMode === 'clues' ? 'bg-brutal-blue text-white border-white/20 shadow-lg' : 'text-stone-400 border-transparent hover:bg-stone-900'}`}
-          >
-            <Eye size={20} />
-            <span>팀별 정보 확인</span>
-          </button>
-        </nav>
-
-        <div className="p-4 border-t border-stone-800">
-          <button
-            onClick={onExit}
-            className="w-full text-stone-400 p-3 flex items-center gap-3 cursor-pointer hover:text-white hover:bg-red-900/50 transition-colors mb-4 font-bold"
-          >
-            <LogOut size={20} />
-            <span>모드 전환 / 나가기</span>
-          </button>
-
-          <div className="flex items-center gap-3 bg-stone-900 p-3 border border-stone-800">
-            <div className="w-10 h-10 bg-brutal-yellow text-black flex items-center justify-center font-black">AD</div>
-            <div>
-              <p className="text-sm font-bold">관리자</p>
-              <p className="text-xs text-stone-500 font-mono">SYSTEM OP</p>
-            </div>
-          </div>
-        </div>
-      </aside>
-
+    <div className="min-h-screen bg-stone-100 font-sans text-black">
       {/* Main Content */}
-      <main className="flex-1 md:ml-64 p-8">
+      <main className="p-8">
         {/* Header */}
         <header className="flex justify-between items-center mb-8 bg-white p-4 border-2 border-black shadow-hard">
           <div className="flex items-center gap-4">
-            <h2 className="text-2xl font-black text-black uppercase">
-              {viewMode === 'dashboard' ? 'Real-time Dashboard' : 'Team Evidence Inspector'}
-            </h2>
+            <div>
+              <p className="text-xs text-stone-500 font-mono mb-1">{projectName}</p>
+              <h2 className="text-2xl font-black text-black uppercase">
+                {viewMode === 'dashboard' ? 'Dashboard' : 'Team Evidence'}
+              </h2>
+            </div>
             <span className="px-2 py-0.5 bg-green-500 text-white text-xs font-mono font-bold border-2 border-black animate-pulse">LIVE</span>
           </div>
           <div className="flex items-center gap-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-black" size={18} />
-              <input type="text" placeholder="데이터 검색..." className="pl-10 pr-4 py-2 bg-stone-100 border-2 border-black text-sm focus:outline-none focus:ring-2 focus:ring-brutal-blue w-64 font-bold placeholder:text-stone-400" />
+            <div className="flex gap-2">
+              <button
+                onClick={() => setViewMode('dashboard')}
+                className={`px-4 py-2 font-bold border-2 border-black transition-colors ${viewMode === 'dashboard' ? 'bg-black text-white' : 'bg-white hover:bg-stone-100'}`}
+              >
+                <BarChart2 size={18} />
+              </button>
+              <button
+                onClick={() => setViewMode('clues')}
+                className={`px-4 py-2 font-bold border-2 border-black transition-colors ${viewMode === 'clues' ? 'bg-black text-white' : 'bg-white hover:bg-stone-100'}`}
+              >
+                <Eye size={18} />
+              </button>
             </div>
           </div>
         </header>

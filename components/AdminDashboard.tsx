@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Users, BarChart2, FileText, CheckCircle, AlertTriangle, Search, Bell, LogOut, Settings, Eye, ChevronRight } from 'lucide-react';
+import { Users, BarChart2, FileText, CheckCircle, Search, LogOut, Settings, Eye, X, AlertTriangle, Lightbulb, Shield, User, Calendar, Hash } from 'lucide-react';
 import { CLUES } from '../constants';
 import { ReportSubmission } from '../types';
 
@@ -13,16 +13,17 @@ interface Props {
 const AdminDashboard: React.FC<Props> = ({ onExit, totalTeams = 6, setTotalTeams, allReports = [] }) => {
   const [selectedTeamForClues, setSelectedTeamForClues] = useState<number>(1);
   const [viewMode, setViewMode] = useState<'dashboard' | 'clues'>('dashboard');
+  const [selectedReport, setSelectedReport] = useState<ReportSubmission | null>(null);
 
   // Stats derived from actual data
   const stats = {
     totalTeams: totalTeams,
-    activeStudents: Math.max(allReports.length + 2, 5), // Simulating some active users
+    activeStudents: Math.max(allReports.length + 2, 5),
     completed: allReports.length,
     completionRate: totalTeams > 0 ? Math.round((allReports.length / totalTeams) * 100) : 0
   };
 
-  // Logic to show clues for a specific team (Sequential distribution matching StageResearch)
+  // Logic to show clues for a specific team
   const getTeamClues = (targetTeamId: number) => {
     const totalClues = CLUES.length;
     const baseCount = Math.floor(totalClues / totalTeams);
@@ -46,16 +47,16 @@ const AdminDashboard: React.FC<Props> = ({ onExit, totalTeams = 6, setTotalTeams
           </h1>
           <p className="text-xs text-stone-400 mt-1 font-mono">ADMIN CONSOLE V2</p>
         </div>
-        
+
         <nav className="flex-1 p-4 space-y-2">
-          <button 
+          <button
             onClick={() => setViewMode('dashboard')}
             className={`w-full text-left p-3 border-2 font-bold flex items-center gap-3 cursor-pointer transition-colors ${viewMode === 'dashboard' ? 'bg-brutal-blue text-white border-white/20 shadow-lg' : 'text-stone-400 border-transparent hover:bg-stone-900'}`}
           >
             <BarChart2 size={20} />
             <span>대시보드</span>
           </button>
-          <button 
+          <button
             onClick={() => setViewMode('clues')}
             className={`w-full text-left p-3 border-2 font-bold flex items-center gap-3 cursor-pointer transition-colors ${viewMode === 'clues' ? 'bg-brutal-blue text-white border-white/20 shadow-lg' : 'text-stone-400 border-transparent hover:bg-stone-900'}`}
           >
@@ -65,7 +66,7 @@ const AdminDashboard: React.FC<Props> = ({ onExit, totalTeams = 6, setTotalTeams
         </nav>
 
         <div className="p-4 border-t border-stone-800">
-          <button 
+          <button
             onClick={onExit}
             className="w-full text-stone-400 p-3 flex items-center gap-3 cursor-pointer hover:text-white hover:bg-red-900/50 transition-colors mb-4 font-bold"
           >
@@ -113,7 +114,7 @@ const AdminDashboard: React.FC<Props> = ({ onExit, totalTeams = 6, setTotalTeams
                 <div className="flex items-center gap-4">
                   <label className="font-bold">전체 조(Team) 개수 설정:</label>
                   <div className="flex items-center">
-                    <button 
+                    <button
                       onClick={() => setTotalTeams(Math.max(1, totalTeams - 1))}
                       className="w-10 h-10 bg-stone-200 border-2 border-black font-bold hover:bg-stone-300"
                     >
@@ -196,7 +197,10 @@ const AdminDashboard: React.FC<Props> = ({ onExit, totalTeams = 6, setTotalTeams
                           <td className="py-3 px-4">{report.author}</td>
                           <td className="py-3 px-4 max-w-xs truncate">{report.rootCause}</td>
                           <td className="py-3 px-4">
-                            <button className="px-2 py-1 bg-white border border-black text-xs hover:bg-brutal-blue hover:text-white transition-colors">
+                            <button
+                              onClick={() => setSelectedReport(report)}
+                              className="px-3 py-1 bg-white border-2 border-black text-xs font-bold hover:bg-brutal-blue hover:text-white transition-colors shadow-sm hover:shadow-none"
+                            >
                               DETAILS
                             </button>
                           </td>
@@ -247,6 +251,105 @@ const AdminDashboard: React.FC<Props> = ({ onExit, totalTeams = 6, setTotalTeams
           </div>
         )}
       </main>
+
+      {/* Report Detail Modal */}
+      {selectedReport && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+          onClick={() => setSelectedReport(null)}
+        >
+          <div
+            className="bg-white max-w-3xl w-full max-h-[90vh] overflow-y-auto border-4 border-black shadow-hard-lg"
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="bg-black text-white p-4 flex justify-between items-center sticky top-0 z-10">
+              <div>
+                <p className="text-brutal-yellow font-mono text-xs">INCIDENT ANALYSIS REPORT</p>
+                <h3 className="text-xl font-black">제3공장 화재사고 분석 보고서</h3>
+              </div>
+              <button
+                onClick={() => setSelectedReport(null)}
+                className="hover:text-brutal-yellow transition-colors"
+              >
+                <X size={28} />
+              </button>
+            </div>
+
+            {/* Modal Meta */}
+            <div className="bg-stone-100 border-b-2 border-black p-4 flex flex-wrap gap-4 justify-between text-sm">
+              <div className="flex items-center gap-2">
+                <Hash size={16} className="text-stone-500" />
+                <span className="font-bold">TEAM {selectedReport.teamId}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <User size={16} className="text-stone-500" />
+                <span className="font-bold">{selectedReport.author}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Calendar size={16} className="text-stone-500" />
+                <span className="font-bold">{selectedReport.timestamp}</span>
+              </div>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6 space-y-6">
+              {/* Problem Definition */}
+              <div>
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="bg-red-500 text-white w-8 h-8 flex items-center justify-center font-black text-sm">1</div>
+                  <AlertTriangle size={20} className="text-red-500" />
+                  <h4 className="font-black">문제 정의 (Problem Definition)</h4>
+                </div>
+                <div className="bg-red-50 border-l-4 border-red-500 p-4">
+                  <p className="font-medium leading-relaxed whitespace-pre-wrap">{selectedReport.problemDefinition}</p>
+                </div>
+              </div>
+
+              {/* Root Cause */}
+              <div>
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="bg-orange-500 text-white w-8 h-8 flex items-center justify-center font-black text-sm">2</div>
+                  <Lightbulb size={20} className="text-orange-500" />
+                  <h4 className="font-black">근본 원인 (Root Cause)</h4>
+                </div>
+                <div className="bg-orange-50 border-l-4 border-orange-500 p-4">
+                  <p className="font-medium leading-relaxed whitespace-pre-wrap">{selectedReport.rootCause}</p>
+                </div>
+              </div>
+
+              {/* Solution */}
+              <div>
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="bg-blue-500 text-white w-8 h-8 flex items-center justify-center font-black text-sm">3</div>
+                  <FileText size={20} className="text-blue-500" />
+                  <h4 className="font-black">해결 방안 (Solution)</h4>
+                </div>
+                <div className="bg-blue-50 border-l-4 border-blue-500 p-4">
+                  <p className="font-medium leading-relaxed whitespace-pre-wrap">{selectedReport.solution}</p>
+                </div>
+              </div>
+
+              {/* Prevention */}
+              <div>
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="bg-green-500 text-white w-8 h-8 flex items-center justify-center font-black text-sm">4</div>
+                  <Shield size={20} className="text-green-500" />
+                  <h4 className="font-black">재발 방지 대책 (Prevention)</h4>
+                </div>
+                <div className="bg-green-50 border-l-4 border-green-500 p-4">
+                  <p className="font-medium leading-relaxed whitespace-pre-wrap">{selectedReport.prevention}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="bg-stone-200 border-t-2 border-black p-4 text-center">
+              <p className="text-xs text-stone-500 font-mono">END OF REPORT // TEAM {selectedReport.teamId}</p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
